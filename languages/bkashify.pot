@@ -1,0 +1,50 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: bKashify\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: en\n"
+
+msgid "Enable/Disable"
+msgstr ""
+
+msgid "Enable bKashify Payment Gateway"
+msgstr ""
+
+msgid "Title"
+msgstr ""
+
+msgid "This controls the title visible to the customer."
+msgstr ""
+
+msgid "bKash Payment"
+msgstr ""
+
+msgid "Description"
+msgstr ""
+
+msgid "Pay securely using your bKash wallet."
+msgstr ""
+
+msgid "Sandbox Mode"
+msgstr ""
+
+msgid "Enable Sandbox Mode (for testing)"
+msgstr ""
+
+msgid "App Key"
+msgstr ""
+
+msgid "App Secret"
+msgstr ""
+
+msgid "Username"
+msgstr ""
+
+msgid "Password"
+msgstr ""
+
+msgid "bKashify"
+msgstr ""
+
+msgid "bKash Payment Gateway for WooCommerce."
+msgstr ""
