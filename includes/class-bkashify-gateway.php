@@ -10,7 +10,7 @@ class Bkashify_Gateway extends WC_Payment_Gateway {
         $this->id                 = 'bkashify';
         $this->method_title       = __( 'bKashify', 'bkashify' );
         $this->method_description = __( 'bKash Payment Gateway for WooCommerce.', 'bkashify' );
-        $this->has_fields         = false;
+        $this->has_fields         = true;
 
         $this->init_form_fields();
         $this->init_settings();
@@ -24,6 +24,7 @@ class Bkashify_Gateway extends WC_Payment_Gateway {
         $this->password    = sanitize_text_field( $this->get_option( 'password' ) );
 
         $this->logger = wc_get_logger();
+        $this->icon   = plugin_dir_url( __FILE__ ) . '../assets/bkash-logo.svg';
 
         add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, [ $this, 'process_admin_options' ] );
     }
@@ -73,15 +74,38 @@ class Bkashify_Gateway extends WC_Payment_Gateway {
         ];
     }
 
-    public function process_admin_options() {
-        parent::process_admin_options();
+    public function is_available() {
+        return 'yes' === $this->enabled;
+    }
+
+    public function payment_fields() {
+        echo '<p>' . esc_html( $this->description ) . '</p>';
+        echo '<p><label>' . esc_html__( 'bKash Transaction ID (for demo)', 'bkashify' ) . '</label><input type="text" name="bkash_transaction_id" required /></p>';
+    }
+
+    public function validate_fields() {
+        if ( empty( $_POST['bkash_transaction_id'] ) ) {
+            wc_add_notice( __( 'Please enter your bKash transaction ID.', 'bkashify' ), 'error' );
+            return false;
+        }
+        return true;
     }
 
     public function process_payment( $order_id ) {
         $order = wc_get_order( $order_id );
-        $this->log( 'Simulated payment for order: ' . $order_id );
+
+        // Example logic: In a real integration, use API token, create payment, execute
+        $transaction_id = sanitize_text_field( $_POST['bkash_transaction_id'] );
+
+        if ( empty( $transaction_id ) || strlen( $transaction_id ) < 8 ) {
+            wc_add_notice( __( 'Invalid bKash transaction ID.', 'bkashify' ), 'error' );
+            return;
+        }
+
+        $order->add_order_note( 'bKash Transaction ID: ' . $transaction_id );
         $order->payment_complete();
         wc_reduce_stock_levels( $order_id );
+
         return [
             'result'   => 'success',
             'redirect' => $this->get_return_url( $order ),
