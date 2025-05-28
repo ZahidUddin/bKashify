@@ -42,3 +42,22 @@ function bkashify_init_gateway_class() {
         return $gateways;
     } );
 }
+
+add_action( 'plugins_loaded', 'bkashify_ensure_log_file' );
+
+function bkashify_ensure_log_file() {
+    $upload_dir = wp_upload_dir();
+    $log_dir    = trailingslashit( $upload_dir['basedir'] ) . 'bkashify-logs';
+
+    if ( ! file_exists( $log_dir ) ) {
+        wp_mkdir_p( $log_dir );
+    }
+
+    $log_file = trailingslashit( $log_dir ) . 'bkashify.log';
+
+    if ( ! file_exists( $log_file ) ) {
+        file_put_contents( $log_file, '' );
+    }
+
+    return $log_file;
+}
