@@ -6,6 +6,11 @@ require_once plugin_dir_path( __FILE__ ) . 'class-bkashify-token.php';
 
 class Bkashify_Gateway extends WC_Payment_Gateway {
 
+    public $sandbox;
+    public $app_key;
+    public $app_secret;
+    public $username;
+    public $password;
     private $logger;
 
     public function __construct() {
@@ -91,16 +96,20 @@ class Bkashify_Gateway extends WC_Payment_Gateway {
             'sandbox'    => $this->sandbox ? 'yes' : 'no',
         ]);
 
-        $token = $token_api->get_token();
+        $token_data = $token_api->get_token( true );
 
-        if ( ! $token ) {
+        if ( empty( $token_data['id_token'] ) ) {
             wc_add_notice( __( 'bKash authentication failed. Please try again later.', 'bkashify' ), 'error' );
-            return;
+            $this->log( 'Token fetch failed: ' . json_encode( $token_data ) );
+            return [ 'result' => 'fail' ];
         }
 
-        // Placeholder: Here you will implement create agreement + payment request
+        $token = $token_data['id_token'];
 
-        $order->add_order_note( 'bKash payment initiated with token: ' . substr( $token, 0, 10 ) . '...' );
+        // Placeholder: Implement agreement/payment flow here
+        $order->add_order_note( 'bKash token obtained: ' . substr( $token, 0, 10 ) . '...' );
+
+        // For now, mark as payment complete (replace this after integrating full flow)
         $order->payment_complete();
         wc_reduce_stock_levels( $order_id );
 
