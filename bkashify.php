@@ -2,7 +2,7 @@
 /**
  * Plugin Name: bKashify – bKash Payment Gateway for WooCommerce
  * Description: Accept bKash payments through WooCommerce using bKashify.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: Zahid Uddin
  * Author URI: https://www.linkedin.com/in/zahid-uddin-4267b816b/
  * Text Domain: bkashify
@@ -17,19 +17,23 @@ function bkashify_load_textdomain() {
     load_plugin_textdomain( 'bkashify', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 }
 
-// Initialize the payment gateway after WooCommerce loads
+// Load bKashify Payment Gateway
 add_action( 'plugins_loaded', 'bkashify_init_gateway_class', 20 );
 function bkashify_init_gateway_class() {
     if ( ! class_exists( 'WC_Payment_Gateway' ) ) return;
 
     // Autoload required classes
-    foreach ( [
+    $includes = [
         'includes/class-bkashify-gateway.php',
         'includes/class-bkashify-token.php',
         'includes/class-bkashify-agreement.php',
         'includes/class-bkashify-payment.php',
-        'includes/class-bkashify-callback.php'
-    ] as $file ) {
+        'includes/class-bkashify-callback.php',
+        'includes/strategies/class-bkashify-tokenized-checkout.php',
+        'includes/strategies/class-bkashify-url-checkout.php',
+    ];
+
+    foreach ( $includes as $file ) {
         $path = plugin_dir_path( __FILE__ ) . $file;
         if ( file_exists( $path ) ) {
             require_once $path;
@@ -41,23 +45,6 @@ function bkashify_init_gateway_class() {
         $gateways[] = 'Bkashify_Gateway';
         return $gateways;
     } );
-}
 
-add_action( 'plugins_loaded', 'bkashify_ensure_log_file' );
-
-function bkashify_ensure_log_file() {
-    $upload_dir = wp_upload_dir();
-    $log_dir    = trailingslashit( $upload_dir['basedir'] ) . 'bkashify-logs';
-
-    if ( ! file_exists( $log_dir ) ) {
-        wp_mkdir_p( $log_dir );
-    }
-
-    $log_file = trailingslashit( $log_dir ) . 'bkashify.log';
-
-    if ( ! file_exists( $log_file ) ) {
-        file_put_contents( $log_file, '' );
-    }
-
-    return $log_file;
+    new Bkashify_Callback();
 }
